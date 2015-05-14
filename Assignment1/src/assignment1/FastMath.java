@@ -49,6 +49,10 @@ public class FastMath {
      * @return Approximation for 1 / sqrt(x).
      */
     public static Gleitpunktzahl invSqrt(Gleitpunktzahl x) {
+    	
+    	if (x.vorzeichen) {
+    		return new Gleitpunktzahl(Double.NaN);
+    	}
         
         int number = gleitpunktzahlToIEEE(x);
         
