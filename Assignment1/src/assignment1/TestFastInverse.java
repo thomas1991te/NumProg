@@ -12,13 +12,13 @@ import javax.swing.JFrame;
  *          This class just contains a main() method to use the FastMath class
  *          and to invoke the plotter.
  */
-public class Test_FastInverse {
+public class TestFastInverse {
 
 	/** Beispielwerte fuer IEEE Standard mit 32 Bits */
-	private static int MAGIC_NUMBER = 0x5f3759df;
+	private static int MAGIC_NUMBER = 1334 + 2 * 4096;
 
-	private static int anzBitsExponent = 8;
-	private static int anzBitsMantisse = 24;
+	private static int anzBitsExponent = 4;
+	private static int anzBitsMantisse = 8;
 
 	/**
 	 * Uses the FastMath class and invokes the plotter. In a logarithmically
@@ -49,6 +49,16 @@ public class Test_FastInverse {
 
 			x *= Math.pow(100.0d, 1.0d / numOfSamplingPts);
 		}
+		
+		float max = 0.0f;
+		
+		for (int i = 0; i < numOfSamplingPts; i++) {
+			if (yData[i] > max) {
+				max = yData[i];
+			}
+		}
+		
+		System.out.println("Max Failure: " + max);
 
 		/* initialize plotter */
 		JFrame frame = new JFrame();

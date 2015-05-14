@@ -21,8 +21,12 @@ public class FastMath {
      *
      * In literature, several of those constants for floats or doubles can be
      * found. There's no optimal constant for all cases.
+     * 
+     * NOTE:
+     * For mantissa 8 bits and exponent 4 bits the following formula can be used to determine a good magic number:
+     * MAGIC_NUMBER = (1334 + (n * 4096)) where n > 0
      */
-    private static int MAGIC_NUMBER = 1024;
+    private static int MAGIC_NUMBER = 1334;
 
     /**
      * belegt die MAGIC_NUMBER mit dem Wert magic
@@ -45,8 +49,6 @@ public class FastMath {
      * @return Approximation for 1 / sqrt(x).
      */
     public static Gleitpunktzahl invSqrt(Gleitpunktzahl x) {
-
-        /* TODO: hier den "fast inverse square root" Algorithmus implementieren */
         
         int number = gleitpunktzahlToIEEE(x);
         

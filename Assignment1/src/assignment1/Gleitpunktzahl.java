@@ -25,22 +25,27 @@ public class Gleitpunktzahl {
 
     public int exponent;
     public int mantisse;
+    
+    /**
+     * The maximum length of a mantissa or exponent.
+     */
+    private static final int MAX_SIZE = 32;
 
-    /*
+    /**
      * Anzahl der Bits fuer die Mantisse: einmal gesetzt, soll sie nicht mehr
      * veraendert werden koennen
      */
-    private static int sizeMantisse = 32;
+    private static int sizeMantisse = MAX_SIZE;
     private static boolean sizeMantisseFixed = false;
 
-    /*
+    /**
      * Anzahl der Bits fuer dem Exponent: einmal gesetzt, soll sie nicht mehr
      * veraendert werden koennen. Maximale Groesse: 32
      */
     private static int sizeExponent = 8;
     private static boolean sizeExponentFixed = false;
 
-    /*
+    /**
      * Aus der Anzahl an Bits fuer den Exponenten laesst sich der maximale
      * Exponent und der Offset berechnen
      */
@@ -95,7 +100,7 @@ public class Gleitpunktzahl {
      * und Exponent werden angelegt. Ist die Anzahl der Bits noch nicht gesetzt,
      * wird der Standardwert gesperrt
      */
-    Gleitpunktzahl() {
+    public Gleitpunktzahl() {
         sizeMantisseFixed = true;
         sizeExponentFixed = true;
     }
@@ -119,7 +124,7 @@ public class Gleitpunktzahl {
      * die Anzahl der Bits fuer Mantisse und Exponent noch nicht gesetzt, wird
      * der Standardwert gesperrt
      */
-    Gleitpunktzahl(double d) {
+    public Gleitpunktzahl(double d) {
 
         this();
         this.setDouble(d);
@@ -206,7 +211,7 @@ public class Gleitpunktzahl {
         if (this.isInfinite()) {
             s.append("Inf");
         } else {
-            for (int i = 32 - Integer.numberOfLeadingZeros(this.mantisse) - 1;
+            for (int i = MAX_SIZE - Integer.numberOfLeadingZeros(this.mantisse) - 1;
                     i >= 0; i--) {
                 if (i == sizeMantisse - 2) {
                     s.append(',');
@@ -218,9 +223,7 @@ public class Gleitpunktzahl {
                 }
             }
             s.append(" * 2^(");
-            s.append(this.exponent);
-            s.append("-");
-            s.append(expOffset);
+            s.append(this.exponent - expOffset);
             s.append(")");
         }
         return s.toString();
@@ -317,13 +320,6 @@ public class Gleitpunktzahl {
      * Beispiel: Bei 3 Mantissenbits wird die Zahl 10.11 * 2^-1 zu 1.10 * 2^0
      */
     public void normalisiere() {
-        /*
-         * TODO: hier ist die Operation normalisiere zu implementieren.
-         * Beachten Sie, dass die Groesse (Anzahl der Bits) des Exponenten
-         * und der Mantisse durch sizeExponent bzw. sizeMantisse festgelegt
-         * ist.
-         * Achten Sie auf Sonderfaelle!
-         */
 
         //check special cases
         if (mantisse == 0) {
@@ -331,13 +327,12 @@ public class Gleitpunktzahl {
             if (exponent == 0) { // null
                 vorzeichen = false;
             }
-            // else if(exponent == maxExponent) infinite
             return;
         } else if (exponent == maxExponent) { // Nan
             return;
         }
 
-        int times = sizeMantisse - (32 - Integer.numberOfLeadingZeros(mantisse));
+        int times = sizeMantisse - (MAX_SIZE - Integer.numberOfLeadingZeros(mantisse));
 
         if (times > 0) { //shift left
             mantisse <<= times;
@@ -354,7 +349,7 @@ public class Gleitpunktzahl {
             mantisse >>>= 1;
 
             // in case that the rounding up creates an overflow
-            if (sizeMantisse - (32 - Integer.numberOfLeadingZeros(mantisse)) != 0) {
+            if (sizeMantisse - (MAX_SIZE - Integer.numberOfLeadingZeros(mantisse)) != 0) {
                 mantisse >>>= 1;
                 exponent += 1;
             }
@@ -368,7 +363,6 @@ public class Gleitpunktzahl {
         if (32 - Integer.numberOfLeadingZeros(exponent) > sizeExponent) {
             this.setInfinite(vorzeichen);
         }
-
     }
 
     /**
@@ -377,9 +371,6 @@ public class Gleitpunktzahl {
      * erweitert. Denormalisieren wird fuer add und sub benoetigt.
      */
     public static void denormalisiere(Gleitpunktzahl a, Gleitpunktzahl b) {
-        /*
-         * TODO: hier ist die Operation denormalisiere zu implementieren.
-         */
 
         if (a.compareAbsTo(b) <= -1) {
             Gleitpunktzahl temp = a;
@@ -400,12 +391,17 @@ public class Gleitpunktzahl {
      * zahlen entsprechend vergroessert. Das Ergebnis wird in einem neuen Objekt
      * gespeichert, normiert, und dieses wird zurueckgegeben.
      */
-    public Gleitpunktzahl add(Gleitpunktzahl r) {
-        /*
-         * TODO: hier ist die Operation add zu implementieren. Verwenden Sie die
-         * Funktionen normalisiere und denormalisiere.
-         * Achten Sie auf Sonderfaelle!
-         */
+    public Gleitpunktzahl add(final Gleitpunktzahl r) {
+
+    	if (this.isInfinite() && r.isInfinite()) {
+    		Gleitpunktzahl num = new Gleitpunktzahl();
+    		if (this.vorzeichen == r.vorzeichen) {
+    			num.setInfinite(this.vorzeichen);
+    		} else {
+        		num.setNaN();
+    		}
+    		return num;
+    	}
         if (this.isNull() || r.isInfinite()) {
             return new Gleitpunktzahl(r);
         }
@@ -418,17 +414,27 @@ public class Gleitpunktzahl {
         Gleitpunktzahl ret = new Gleitpunktzahl();
         ret.exponent = this.exponent;
 
+        // subtract or add mantissas
         if (this.vorzeichen == r.vorzeichen) {
             ret.mantisse = this.mantisse + r.mantisse;
         } else {
             ret.mantisse = this.mantisse - r.mantisse;
         }
+        
+        // set sign
+        if (this.compareAbsTo(r) >= 1) {
+            ret.vorzeichen = this.vorzeichen;
+        } else {
+            ret.vorzeichen = r.vorzeichen;
+        }
 
-        ret.vorzeichen = false;
-
+        // invert mantiassa if negative
         if (ret.mantisse < 0) {
             ret.mantisse = -ret.mantisse;
-            ret.vorzeichen = true;
+        }
+        
+        if (ret.mantisse == 0) {
+        	ret.setNull();
         }
 
         this.normalisiere();
@@ -445,11 +451,11 @@ public class Gleitpunktzahl {
      * gespeichert, normiert, und dieses wird zurueckgegeben.
      */
     public Gleitpunktzahl sub(Gleitpunktzahl r) {
-        /*
-         * TODO: hier ist die Operation sub zu implementieren. Verwenden Sie die
-         * Funktionen normalisiere und denormalisiere.
-         * Achten Sie auf Sonderfaelle!
-         */
+    	
+    	if (r.isNull()) {
+    		return new Gleitpunktzahl(this);
+    	}
+
         Gleitpunktzahl ret;
 
         r.vorzeichen = !r.vorzeichen;
