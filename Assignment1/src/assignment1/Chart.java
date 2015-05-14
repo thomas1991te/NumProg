@@ -1,11 +1,5 @@
 package assignment1;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.approximatrix.charting.Legend;
@@ -16,6 +10,10 @@ import com.approximatrix.charting.render.MultiScatterChartRenderer;
 import com.approximatrix.charting.render.RowColorModel;
 import com.approximatrix.charting.swing.ExtendedChartPanel;
 
+/**
+ * Class for drawing charts with openchart2.
+ * @author tzwickl
+ */
 public class Chart {
 
 	/**
@@ -61,7 +59,7 @@ public class Chart {
 		// Create an associated coordinate system object
 		CoordSystem coord = new BoxCoordSystem(model);
 
-		coord.setYAxisUnit("Average failure");
+		coord.setYAxisUnit("Failure");
 		coord.setXAxisUnit(xAxisUnit);
 
 		// Generate the chart panel

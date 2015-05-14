@@ -24,7 +24,7 @@ public class FastMath {
      * 
      * NOTE:
      * For mantissa 8 bits and exponent 4 bits the following formula can be used to determine a good magic number:
-     * MAGIC_NUMBER = (1334 + (n * 4096)) where n > 0
+     * MAGIC_NUMBER = (1334 + (n * 4096)) where n >= 0
      */
     private static int MAGIC_NUMBER = 1334;
 

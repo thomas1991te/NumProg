@@ -7,14 +7,8 @@ import java.util.List;
 import javax.swing.JFrame;
 
 /**
- * @author Christoph Riesinger (riesinge@in.tum.de)
- * @author Jürgen Bräckle (braeckle@in.tum.de)
- * @author Sebastian Rettenberger (rettenbs@in.tum.de)
- * @since November 02, 2012
- * @version 1.1
- * 
- *          This class just contains a main() method to use the FastMath class
- *          and to invoke the plotter.
+ * Class for approximating them magic number.
+ * @author tzwickl
  */
 public class FastInverseMagicNumber {
 
@@ -22,14 +16,8 @@ public class FastInverseMagicNumber {
 	private static int anzBitsMantisse = 8;
 
 	/**
-	 * Uses the FastMath class and invokes the plotter. In a logarithmically
-	 * scaled system, the exact solutions of 1/sqrt(x) are shown in green, and
-	 * the absolute errors of the Fast Inverse Square Root in red. Can be used
-	 * to test and debug the own implementation of the fast inverse square root
-	 * algorithm and to play while finding an optimal magic number.
-	 * 
+	 * Main method.
 	 * @param args
-	 *            args is ignored.
 	 */
 	public static void main(String[] args) {
 
@@ -72,18 +60,41 @@ public class FastInverseMagicNumber {
 		frame.setVisible(true);
 	}
 	
-	public static void validateMagicNumber(float[] xData, float[] yData, int magicNumber, int numOfSamplingPts, float x) {
+	/**
+	 * Calculates actual value and absolute failure for current magic number.
+	 * 
+	 * @param actualValue
+	 * 			The actual value.
+	 * @param absoluteFailure
+	 * 			The absolute failure.
+	 * @param magicNumber
+	 * 			The magic number.
+	 * @param numOfSamplingPts
+	 * 			The number of sampling points
+	 * @param x
+	 * 			The starting value.
+	 */
+	public static void validateMagicNumber(float[] actualValue, float[] absoluteFailure, int magicNumber, int numOfSamplingPts, float x) {
 		FastMath.setMagic(magicNumber);
 		/* calculate data to plot */
 		for (int i = 0; i < numOfSamplingPts; i++) {
-			xData[i] = (float) (1.0d / Math.sqrt(x));
+			actualValue[i] = (float) (1.0d / Math.sqrt(x));
 			Gleitpunktzahl y = new Gleitpunktzahl(x);
-			yData[i] = (float) FastMath.absInvSqrtErr(y);
+			absoluteFailure[i] = (float) FastMath.absInvSqrtErr(y);
 
 			x *= Math.pow(100.0d, 1.0d / numOfSamplingPts);
 		}
 	}
 	
+	/**
+	 * Calculates the metrics.
+	 * 
+	 * @param xData
+	 * 		The x data of the diagram.
+	 * @param yData
+	 * 		The y data of the diagram.
+	 * @return
+	 */
 	public static float calculateMetric(float[] xData, float[] yData) {
 		float sum = 0.0f;
 		
